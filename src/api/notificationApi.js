@@ -2,7 +2,7 @@
 import apiClient from "./apiClient";
 
 const notificationApi = {
-  getMyNotifications: () => apiClient.get("/users/me/notifications"),
+  getMyNotifications: () => apiClient.get("/api/users/me/notifications"),
 };
 
 export default notificationApi;

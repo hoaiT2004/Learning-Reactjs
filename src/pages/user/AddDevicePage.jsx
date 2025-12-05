@@ -6,7 +6,6 @@ import "../../styles/AddDevicePage.css";
 
 const AddDevicePage = () => {
   const [deviceName, setDeviceName] = useState("");
-  const [mqttToken, setMqttToken] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -20,10 +19,7 @@ const AddDevicePage = () => {
       return;
     }
 
-    if (!mqttToken.trim()) {
-      setError("Vui lòng nhập MQTT Token");
-      return;
-    }
+    // no mqtt token required from UI
 
     try {
       setLoading(true);
@@ -76,17 +72,7 @@ const AddDevicePage = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="mqttToken">MQTT Token *</label>
-            <input
-              id="mqttToken"
-              type="text"
-              placeholder="Nhập MQTT Token"
-              value={mqttToken}
-              onChange={(e) => setMqttToken(e.target.value)}
-              disabled={loading}
-            />
-          </div>
+          {/* MQTT Token removed from UI - provided by device or backend */}
 
           {error && <div className="form-error">{error}</div>}
 

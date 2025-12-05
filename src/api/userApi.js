@@ -11,9 +11,10 @@ const mockUsers = [
 ];
 
 const userApi = {
-  // getAllUsers: () => apiClient.get("/admin/users"),
+  // getAllUsers: () => apiClient.get("/api/admin/users"),
   getAllUsers: () => Promise.resolve({ data: mockUsers }),
-  createUser: (data) => apiClient.post("/admin/users", data),
+  createUser: (data) => apiClient.post("/api/admin/users/new", data),
+  deleteUser: (id) => apiClient.delete(`/api/admin/users/${id}`),
 };
 
 export default userApi;

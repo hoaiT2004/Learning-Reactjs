@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import deviceApi from "../../api/deviceApi";
+import "../../styles/UserDeviceListPage.css";
 
 const UserDeviceListPage = () => {
   const [devices, setDevices] = useState([]);
@@ -13,13 +14,25 @@ const UserDeviceListPage = () => {
 
   useEffect(loadDevices, []);
 
-  const getStatusBadge = (status) => {
-    return (
-      <span className={`status-badge status-${status}`}>
-        {status === "online" ? "Online" : "Offline"}
-      </span>
-    );
-  };
+  // listen for device status updates dispatched globally (from WebSocket in layout)
+  useEffect(() => {
+    const handler = (e) => {
+      const deviceId = e?.detail?.deviceId;
+      if (!deviceId) return;
+      // reload devices list (so status updated from backend is fetched)
+      loadDevices();
+    };
+    window.addEventListener('device-status-updated', handler);
+    return () => window.removeEventListener('device-status-updated', handler);
+  }, []);
+
+  // const getStatusBadge = (status) => {
+  //   return (
+  //     <span className={`status-badge status-${status}`}>
+  //       {status === "online" ? "Online" : "Offline"}
+  //     </span>
+  //   );
+  // };
 
   return (
     <div className="device-list-container">
@@ -46,7 +59,8 @@ const UserDeviceListPage = () => {
             <div key={device._id} className="table-row">
               <div className="col-id">{device._id}</div>
               <div className="col-name">{device.deviceName}</div>
-              <div className="col-status">{getStatusBadge(device.status)}</div>
+              {/* <div className="col-status">{getStatusBadge(device.status)}</div> */}
+              <div className="col-status">{device.status}</div>
               <div className="col-version">{device.version}</div>
               <div className="col-actions">
                 <Link
@@ -56,7 +70,40 @@ const UserDeviceListPage = () => {
                 >
                   Xem chi tiết
                 </Link>
-                {/* faces link removed: face management is available on device detail page */}
+                {device.status === "locked" && (
+                  <button
+                    className="btn-unlock"
+                    onClick={async () => {
+                      try {
+                        await deviceApi.sendDeviceCommand(device._id, "unlock");
+                        setDevices((prev) => prev.map((d) => (d._id === device._id ? { ...d, status: "unlocked" } : d)));
+                        window.alert("Gửi lệnh mở khóa thành công");
+                      } catch (err) {
+                        console.error(err);
+                        window.alert("Không thể gửi lệnh mở khóa");
+                      }
+                    }}
+                  >
+                    Mở khóa
+                  </button>
+                )}
+                {device.status === "unlocked" && (
+                  <button
+                    className="btn-lock"
+                    onClick={async () => {
+                      try {
+                        await deviceApi.sendDeviceCommand(device._id, "lock");
+                        setDevices((prev) => prev.map((d) => (d._id === device._id ? { ...d, status: "locked" } : d)));
+                        window.alert("Gửi lệnh đóng khóa thành công");
+                      } catch (err) {
+                        console.error(err);
+                        window.alert("Không thể gửi lệnh đóng khóa");
+                      }
+                    }}
+                  >
+                    Đóng khóa
+                  </button>
+                )}
               </div>
             </div>
           ))

@@ -100,11 +100,18 @@ const DeviceDetailPage = () => {
           <div className="info-label">Ảnh khuôn mặt</div>
           <div className="info-value faces-list">
             {faces && faces.length > 0 ? (
-              faces.map((url, idx) => (
-                <a key={idx} href={url} target="_blank" rel="noreferrer">
-                  <img src={url} alt={`face-${idx}`} className="face-thumb" />
-                </a>
-              ))
+              faces.map((f, idx) => {
+                // support both string and object shapes
+                const url = typeof f === 'string' ? f : f.url || f.faceUrl || f.image || '';
+                const name = typeof f === 'string' ? '' : f.name || f.label || '';
+                return (
+                  <a key={idx} href={url} target="_blank" rel="noreferrer">
+                    <img src={url} alt={`face-${idx}`} className="face-thumb" />
+                    {/* keep name available in DOM but hidden */}
+                    <div className="face-name-hidden" hidden>{name}</div>
+                  </a>
+                );
+              })
             ) : (
               <span className="muted">Chưa có ảnh khuôn mặt</span>
             )}
